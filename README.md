@@ -118,13 +118,7 @@ rag-legal-qa/
 
 ---
 
-## 🙋 Author
 
-**Rohit**
-- GitHub: [@YOURUSERNAME](https://github.com/YOURUSERNAME)
-- LinkedIn: [Your LinkedIn](https://linkedin.com)
-
----
 
 ## 📃 License
 
