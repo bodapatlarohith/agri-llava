@@ -1,23 +1,25 @@
-# ⚖️ RAG for Legal Question Answering and Summarization
+# 🌿 Agri LLaVA — Leaf Disease Detection System
 
-> A Retrieval-Augmented Generation (RAG) system for answering Indian constitutional legal queries — combining semantic retrieval and generative modeling for accurate, context-aware responses grounded in authoritative legal texts.
+> A full stack AI-powered plant disease detection system that classifies leaf images as healthy or diseased using a custom CNN model with GradCAM visual explainability.
 
 ---
 
 ## 📄 Project Overview
 
 **Objective:**
-Develop a question-answering system that retrieves relevant legal content from the Indian Constitution and generates precise, contextually appropriate answers.
+Build an end-to-end AI system where a user uploads a photo of a plant leaf and instantly receives a prediction on whether the leaf is healthy or diseased — with a heatmap showing exactly which region of the leaf influenced the decision.
 
 ---
 
 ## ✨ Key Features
 
-- 🔍 Retrieval of relevant articles using dense embeddings (Sentence Transformers)
-- 🤖 Answer generation using **Qwen-3 4B** language model
-- 🔐 User authentication (login / signup)
-- 📜 Query history tracking
-- 📱 Responsive frontend for ease of use
+- 🤖 Custom CNN model trained on a real leaf dataset (healthy / unhealthy classes)
+- 🔥 GradCAM heatmap for visual explainability — see what the model focuses on
+- 🖼️ Next-stage disease image generation using Diffusion Models
+- 🔐 User authentication (login / signup) with JWT
+- 📜 Prediction history tracking per user
+- 📱 Clean and responsive React frontend
+- 🔗 REST API for image upload and real-time prediction
 
 ---
 
@@ -25,46 +27,47 @@ Develop a question-answering system that retrieves relevant legal content from t
 
 | Layer | Technology |
 |-------|-----------|
-| **Backend** | Python (Flask), MongoDB, FAISS |
-| **Frontend** | HTML, CSS, JavaScript |
-| **LLM** | Qwen-3 4B |
-| **Embedding Model** | all-MiniLM-L6-v2 |
-| **Deployment** | Google Colab + Ngrok, Netlify / GitHub Pages |
+| **Frontend** | React.js, Vite |
+| **Backend** | Python, Flask |
+| **AI Model** | PyTorch (Custom CNN) |
+| **Explainability** | GradCAM |
+| **Image Generation** | Diffusers (Stable Diffusion) |
+| **Database** | MongoDB |
+| **Auth** | JWT, bcrypt |
 
 ---
 
 ## 🏛️ Architecture
 
-The system is structured into three layers:
-
 ```
-┌─────────────────────────────────────┐
-│          Frontend Tier              │
-│  Login / Signup, Query Input,       │
-│  Answer Display                     │
-└────────────────┬────────────────────┘
-                 │
-┌────────────────▼────────────────────┐
-│          Backend Tier               │
-│  API Logic, Authentication,         │
-│  Retrieval Pipeline (Flask)         │
-└────────────────┬────────────────────┘
-                 │
-┌────────────────▼────────────────────┐
-│           Model Tier                │
-│  Retriever: FAISS                   │
-│  Generator: Qwen-3 4B               │
-└─────────────────────────────────────┘
+User uploads leaf image
+         │
+         ▼
+┌─────────────────────┐
+│   React Frontend    │  → Image upload, prediction display, history
+└────────┬────────────┘
+         │ REST API
+         ▼
+┌─────────────────────┐
+│   Flask Backend     │  → Auth, prediction route, GradCAM
+└────────┬────────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+ CNN Model  MongoDB
+ (PyTorch)  (History)
 ```
 
 ---
 
 ## 💡 How It Works
 
-1. **User Query** — User submits a legal question via the frontend
-2. **Retrieval** — System retrieves the most relevant constitutional text chunks using embeddings
-3. **Generation** — Qwen-3 4B generates a contextually relevant answer based on retrieved passages
-4. **Response** — Answer is displayed to the user along with references to source articles
+1. **Upload** — User uploads a leaf image via the React frontend
+2. **Predict** — Flask API passes the image through the trained CNN model
+3. **GradCAM** — A heatmap is generated showing which region the model focused on
+4. **Result** — Prediction (Healthy / Unhealthy) is displayed with the heatmap overlay
+5. **History** — All predictions are saved to MongoDB and viewable per user
+6. **Generate** — Users can generate next-stage disease visuals using a diffusion model
 
 ---
 
@@ -72,54 +75,70 @@ The system is structured into three layers:
 
 ### Prerequisites
 - Python 3.8+
+- Node.js
 - MongoDB
-- Node.js (for frontend)
 
 ### Installation
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/YOURUSERNAME/rag-legal-qa.git
-cd rag-legal-qa
+git clone https://github.com/bodapatlarohith/agri-llava.git
+cd agri-llava
 ```
 
-**2. Install backend dependencies**
+**2. Train the model (first time only)**
 ```bash
 cd backend
-pip install -r requirements.txt
+python train_cnn_model.py
 ```
 
 **3. Run the backend**
 ```bash
+pip install -r requirements.txt
 python app.py
 ```
 
-**4. Open the frontend**
+**4. Run the frontend**
+```bash
+cd agri-llava-frontend
+npm install
+npm run dev
+```
 
-Open `index.html` in your browser or deploy to Netlify/GitHub Pages.
+**5. Open in browser**
+```
+http://localhost:5173
+```
 
 ---
 
 ## 📁 Project Structure
 
 ```
-rag-legal-qa/
+agri-llava/
 ├── backend/
-│   ├── app.py               # Flask API
-│   ├── retriever.py         # FAISS retrieval logic
-│   ├── requirements.txt
-│   └── constitution_data/   # Legal text chunks
-├── frontend/
-│   ├── index.html
-│   ├── style.css
-│   └── script.js
+│   ├── app.py                  # Flask API
+│   ├── train_cnn_model.py      # CNN training script
+│   ├── cnn_leaf_model.pth      # Trained model file
+│   ├── leaf_dataset/
+│   │   ├── healthy/            # Healthy leaf images
+│   │   └── unhealthy/          # Diseased leaf images
+│   ├── uploads/                # Uploaded images
+│   ├── static/gradcam_results/ # GradCAM outputs
+│   └── requirements.txt
+├── agri-llava-frontend/
+│   ├── src/
+│   │   ├── components/         # React components
+│   │   └── context/            # Auth context
+│   └── package.json
 └── README.md
 ```
 
 ---
 
+## 🙋 Author
 
-
-## 📃 License
-
-This project is open source and available under the [MIT License](LICENSE).
+**Rohit**
+📧 bodapatlarohithkumar7@gmail.com
+📱 7981158530
+🔗 GitHub: [bodapatlarohith](https://github.com/bodapatlarohith)
